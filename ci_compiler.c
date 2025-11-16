@@ -21,7 +21,6 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    // Lê arquivo inteiro
     char buffer[1024];
     if (!fgets(buffer, sizeof(buffer), f)) {
         fprintf(stderr, "Arquivo vazio ou erro de leitura.\n");
@@ -29,17 +28,14 @@ int main(int argc, char *argv[]) {
     }
     fclose(f);
 
-    // Remove quebra de linha
     buffer[strcspn(buffer, "\n")] = 0;
 
-    // Verifica sintaxe
     for (int i = 0; buffer[i]; i++) {
         if (!isdigit((unsigned char)buffer[i])) {
             erro_sintaxe();
         }
     }
 
-    // Geração do código assembly CI
     FILE *out = fopen("output.s", "w");
     if (!out) {
         perror("Erro criando output.s");
@@ -49,19 +45,23 @@ int main(int argc, char *argv[]) {
     fprintf(out,
         "    .section .data\n"
         "msg:    .string \"%s\\n\"\n\n"
+
         "    .section .text\n"
         "    .globl main\n"
         "main:\n"
         "    leaq msg(%%rip), %%rdi\n"
         "    xor %%rax, %%rax\n"
         "    call printf@PLT\n"
-        "    ret\n",
+        "    ret\n\n"
+
+        "    .section .note.GNU-stack,\"\",@progbits\n",
         buffer
     );
 
     fclose(out);
 
-    printf("Compilação concluída. Rode:\n");
+    printf("Compilação CI concluída.\n");
+    printf("Agora rode:\n");
     printf("  gcc output.s -o programa\n");
     printf("  ./programa\n");
 
