@@ -1,0 +1,4 @@
+*.o
+output.s
+ci_compiler
+programa

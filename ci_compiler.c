@@ -43,18 +43,13 @@ int main(int argc, char *argv[]) {
     }
 
     fprintf(out,
-        "    .section .data\n"
-        "msg:    .string \"%s\\n\"\n\n"
-
-        "    .section .text\n"
-        "    .globl main\n"
-        "main:\n"
-        "    leaq msg(%%rip), %%rdi\n"
-        "    xor %%rax, %%rax\n"
-        "    call printf@PLT\n"
-        "    ret\n\n"
-
-        "    .section .note.GNU-stack,\"\",@progbits\n",
+        ".section .text\n"
+        ".globl _start\n"
+        "_start:\n"
+        "    movabs $%s, %%rax\n"
+        "    call imprime_num\n"
+        "    call sair\n"
+        ".include \"runtime.s\"\n",
         buffer
     );
 
@@ -62,8 +57,7 @@ int main(int argc, char *argv[]) {
 
     printf("Compilação CI concluída.\n");
     printf("Agora rode:\n");
-    printf("  gcc output.s -o programa\n");
-    printf("  ./programa\n");
+    printf("  as -o output.o output.s\nas -o runtime.o runtime.s\nld -o programa output.o runtime.o\n./programa\n");
 
     return 0;
 }
